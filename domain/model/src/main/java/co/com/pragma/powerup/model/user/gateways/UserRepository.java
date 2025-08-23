@@ -1,4 +1,13 @@
 package co.com.pragma.powerup.model.user.gateways;
 
-public interface UserRepository {
+
+import co.com.pragma.powerup.model.user.User;
+import reactor.core.publisher.Mono;
+
+public interface UserRepository{
+
+        Mono<User> save(User user);
+        Mono<User> findByEmail(String email);
+
+
 }
