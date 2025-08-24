@@ -1,15 +1,16 @@
 package co.com.pragma.powerup.usecase.user;
 
 import co.com.pragma.powerup.model.user.User;
-import co.com.pragma.powerup.model.user.exceptions.UserAlreadyExistsException;
+import co.com.pragma.powerup.model.user.exceptions.EmailUserAlreadyExistsException;
 import co.com.pragma.powerup.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
+import lombok.extern.log4j.Log4j2;
 
-import java.util.Objects;
+
 import java.util.regex.Pattern;
-
+@Log4j2
 @RequiredArgsConstructor
 public class UserUseCase {
     private final TransactionalOperator txOperator;
@@ -19,6 +20,7 @@ public class UserUseCase {
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     private Mono<User> validate(User user) {
+        log.info("Validacion de los atributos del usuario" );
         return Mono.justOrEmpty(user)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("El usuario no puede ser null")))
                 .flatMap(this::validateRequiredFields)
@@ -66,13 +68,19 @@ public class UserUseCase {
         return value == null || value.trim().isEmpty();
     }
 
-    private Mono<User> saveUser(User user){
-    return userRepository.findByEmail(user.getEmailAddress())
-            .flatMap(existing ->Mono.error(new UserAlreadyExistsException(user.getEmailAddress())))
-            .switchIfEmpty(userRepository.save(user))
-            .cast(User.class)
-            .as(txOperator::transactional);
-    }
+    public Mono<User> saveUser(User user){
 
+        return this.validate(user)
+                .flatMap(u ->userRepository.findByEmail(u.getEmailAddress()))
+                .flatMap(existing ->Mono.error(new EmailUserAlreadyExistsException(user.getEmailAddress())))
+                .switchIfEmpty(userRepository.save(user))
+                .cast(User.class)
+                .doOnSuccess(savedUser ->
+                        log.info("Usuario creado exitosamente con email={}", savedUser.getEmailAddress()))
+                .doOnError(error ->
+                        log.error("Error al crear usuario con email={}: {}", user.getEmailAddress(),
+                                error.getMessage()))
+                .as(txOperator::transactional);
+    }
 
 }
