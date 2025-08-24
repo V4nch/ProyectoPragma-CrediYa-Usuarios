@@ -23,7 +23,7 @@ public class UserEntity {
     private Date birthDate;
     private String address;
     private String phoneNumber;
-    private String salaryBase;
+    private String baseSalary;
 
 
 

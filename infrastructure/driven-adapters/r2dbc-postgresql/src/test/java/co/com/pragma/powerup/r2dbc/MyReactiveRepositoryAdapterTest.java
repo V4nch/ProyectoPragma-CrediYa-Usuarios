@@ -1,5 +1,8 @@
 package co.com.pragma.powerup.r2dbc;
 
+
+import co.com.pragma.powerup.model.user.User;
+import co.com.pragma.powerup.r2dbc.entity.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MyReactiveRepositoryAdapterTest {
-    // TODO: change four you own tests
+
 
     @InjectMocks
     MyReactiveRepositoryAdapter repositoryAdapter;
@@ -29,11 +32,11 @@ class MyReactiveRepositoryAdapterTest {
 
     @Test
     void mustFindValueById() {
-
-        when(repository.findById("1")).thenReturn(Mono.just("test"));
+        Long id = 1L;
+        when(repository.findById(id)).thenReturn(Mono.just(new UserEntity()));
         when(mapper.map("test", Object.class)).thenReturn("test");
 
-        Mono<Object> result = repositoryAdapter.findById("1");
+        Mono<User> result = repositoryAdapter.findById(id);
 
         StepVerifier.create(result)
                 .expectNextMatches(value -> value.equals("test"))
@@ -42,10 +45,10 @@ class MyReactiveRepositoryAdapterTest {
 
     @Test
     void mustFindAllValues() {
-        when(repository.findAll()).thenReturn(Flux.just("test"));
+        when(repository.findAll()).thenReturn(Flux.just(new UserEntity()));
         when(mapper.map("test", Object.class)).thenReturn("test");
 
-        Flux<Object> result = repositoryAdapter.findAll();
+        Flux<User> result = repositoryAdapter.findAll();
 
         StepVerifier.create(result)
                 .expectNextMatches(value -> value.equals("test"))
@@ -57,7 +60,7 @@ class MyReactiveRepositoryAdapterTest {
         when(repository.findAll(any(Example.class))).thenReturn(Flux.just("test"));
         when(mapper.map("test", Object.class)).thenReturn("test");
 
-        Flux<Object> result = repositoryAdapter.findByExample("test");
+        Flux<User> result = repositoryAdapter.findByExample(new User());
 
         StepVerifier.create(result)
                 .expectNextMatches(value -> value.equals("test"))
@@ -66,10 +69,10 @@ class MyReactiveRepositoryAdapterTest {
 
     @Test
     void mustSaveValue() {
-        when(repository.save("test")).thenReturn(Mono.just("test"));
+        when(repository.save(new UserEntity())).thenReturn(Mono.just(new UserEntity()));
         when(mapper.map("test", Object.class)).thenReturn("test");
 
-        Mono<Object> result = repositoryAdapter.save("test");
+        Mono<User> result = repositoryAdapter.save(new User());
 
         StepVerifier.create(result)
                 .expectNextMatches(value -> value.equals("test"))
