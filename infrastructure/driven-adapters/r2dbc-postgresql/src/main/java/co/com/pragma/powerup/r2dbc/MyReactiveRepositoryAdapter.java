@@ -12,8 +12,8 @@ import reactor.core.publisher.Mono;
 public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         User,
         UserEntity,
-    Long,
-    MyReactiveRepository
+        Long,
+        MyReactiveRepository
 > implements UserRepository {
 
     private final MyReactiveRepository repository;
@@ -27,7 +27,7 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<User> findByEmail(String email){
-        return this.repository.findByEmail(email).map(d -> mapper.map(d, User.class));
+        return this.repository.findByEmailAddress(email).map(d -> mapper.map(d, User.class));
     }
 }
 

@@ -17,12 +17,12 @@ public class UserEntity {
 
     @Id
     private Long idUser;   // Primary Key
-    private String emailAddress;
     private String name;
     private String lastName;
     private Date birthDate;
     private String address;
     private String phoneNumber;
+    private String emailAddress;
     private String baseSalary;
 
 

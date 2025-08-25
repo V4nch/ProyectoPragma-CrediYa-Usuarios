@@ -15,10 +15,10 @@ buildCache {
 rootProject.name = 'CrediYa'
 
 include ':app-service'
-include ':model'
-include ':usecase'
 project(':app-service').projectDir = file('./applications/app-service')
+include ':model'
 project(':model').projectDir = file('./domain/model')
+include ':usecase'
 project(':usecase').projectDir = file('./domain/usecase')
 include ':r2dbc-postgresql'
 project(':r2dbc-postgresql').projectDir = file('./infrastructure/driven-adapters/r2dbc-postgresql')

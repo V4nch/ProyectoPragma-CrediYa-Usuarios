@@ -2,9 +2,9 @@ package co.com.pragma.powerup.usecase.user;
 
 import co.com.pragma.powerup.model.user.User;
 import co.com.pragma.powerup.model.user.exceptions.EmailUserAlreadyExistsException;
+import co.com.pragma.powerup.model.user.gateways.TransactionGateway;
 import co.com.pragma.powerup.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import lombok.extern.log4j.Log4j2;
 
@@ -13,11 +13,12 @@ import java.util.regex.Pattern;
 @Log4j2
 @RequiredArgsConstructor
 public class UserUseCase {
-    private final TransactionalOperator txOperator;
-    private final UserRepository userRepository;
 
+    private final UserRepository userRepository;
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private final TransactionGateway transactionGateway;
+
 
     private Mono<User> validate(User user) {
         log.info("Validacion de los atributos del usuario" );
@@ -54,7 +55,7 @@ public class UserUseCase {
     private Mono<User> validateSalaryRange(User user) {
         try {
             double salary = Double.parseDouble(user.getBaseSalary());
-            if (salary < 0 || salary > 15_000_000) {
+            if (salary < 0 || salary > 15000000) {
                 return Mono.error(new IllegalArgumentException(
                         "El salario base debe estar entre 0 y 15 millones"));
             }
@@ -70,7 +71,7 @@ public class UserUseCase {
 
     public Mono<User> saveUser(User user){
 
-        return this.validate(user)
+        return transactionGateway.doInTransaction(this.validate(user)
                 .flatMap(u ->userRepository.findByEmail(u.getEmailAddress()))
                 .flatMap(existing ->Mono.error(new EmailUserAlreadyExistsException(user.getEmailAddress())))
                 .switchIfEmpty(userRepository.save(user))
@@ -79,8 +80,8 @@ public class UserUseCase {
                         log.info("Usuario creado exitosamente con email={}", savedUser.getEmailAddress()))
                 .doOnError(error ->
                         log.error("Error al crear usuario con email={}: {}", user.getEmailAddress(),
-                                error.getMessage()))
-                .as(txOperator::transactional);
+                                error.getMessage())));
+
     }
 
 }
