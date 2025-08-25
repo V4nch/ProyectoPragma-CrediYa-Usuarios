@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Date;
+import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,7 +19,7 @@ public class UserEntity {
     private Long idUser;   // Primary Key
     private String name;
     private String lastName;
-    private Date birthDate;
+    private LocalDate birthDate;
     private String address;
     private String phoneNumber;
     private String emailAddress;

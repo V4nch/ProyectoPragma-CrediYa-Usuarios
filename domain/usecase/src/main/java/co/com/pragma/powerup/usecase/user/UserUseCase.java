@@ -16,7 +16,7 @@ public class UserUseCase {
 
     private final UserRepository userRepository;
     private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+            Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private final TransactionGateway transactionGateway;
 
 
@@ -47,7 +47,7 @@ public class UserUseCase {
 
     private Mono<User> validateEmailFormat(User user) {
         if (!EMAIL_PATTERN.matcher(user.getEmailAddress()).matches()) {
-            return Mono.error(new IllegalArgumentException("El email no tiene un formato válido"));
+            return Mono.error(new IllegalArgumentException("El email no tiene un formato valido"));
         }
         return Mono.just(user);
     }
