@@ -15,18 +15,18 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         MyReactiveRepository
 > implements UserRepository {
 
-    private final MyReactiveRepository repository;
+    private final MyReactiveRepository myRepository;
 
     public MyReactiveRepositoryAdapter(MyReactiveRepository repository,
                                        ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, User.class));
-        this.repository = repository;
+        this.myRepository = repository;
 
     }
 
     @Override
     public Mono<User> findByEmail(String email){
-        return this.repository.findByEmailAddress(email).map(d -> mapper.map(d, User.class));
+        return this.myRepository.findByEmailAddress(email).map(d -> mapper.map(d, User.class));
     }
 }
 

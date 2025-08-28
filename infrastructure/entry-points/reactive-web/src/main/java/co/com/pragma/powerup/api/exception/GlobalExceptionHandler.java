@@ -1,6 +1,7 @@
 package co.com.pragma.powerup.api.exception;
 
-import co.com.pragma.powerup.model.user.exceptions.EmailUserAlreadyExistsException;
+import co.com.pragma.powerup.model.user.exceptions.*;
+import co.com.pragma.powerup.model.user.utils.Constants;
 import io.r2dbc.spi.R2dbcDataIntegrityViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
@@ -15,41 +16,41 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailUserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailUserAlreadyExistsException ex) {
-        log.warn("Error, ya existe un usuario con este email: {}", ex.getMessage());
+        log.warn(Constants.LOG_EMAIL_ALREADY_EXIST, ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse("EMAIL_ALREADY_EXISTS", ex.getMessage()));
+                .body(new ErrorResponse(Constants.EMAIL_ALREADY_EXISTS, ex.getMessage()));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleBusiness(IllegalArgumentException ex) {
-        log.warn("Error de negocio: {}", ex.getMessage());
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
+        log.warn(Constants.LOG_BUSINESS_ERROR, ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("BAD_REQUEST", ex.getMessage()));
+                .body(new ErrorResponse(Constants.BAD_REQUEST, ex.getMessage()));
     }
 
     @ExceptionHandler(R2dbcDataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleR2dbcIntegrity(R2dbcDataIntegrityViolationException ex) {
-        log.error("Error de integridad en BD: {}", ex.getMessage(), ex);
+        log.error(Constants.LOG_DB_INTEGRITY_ERROR, ex.getMessage(), ex);
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse("DATABASE_ERROR", "Violación de restricción en la base de datos"));
+                .body(new ErrorResponse(Constants.DATABASE_ERROR, Constants.DB_VIOLATION_MESSAGE));
     }
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDataAccess(DataAccessException ex) {
-        log.error("Error de acceso a datos: {}", ex.getMessage(), ex);
+        log.error(Constants.LOG_DATA_ACCESS_ERROR, ex.getMessage(), ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("DATABASE_ERROR", "Error de acceso a la base de datos"));
+                .body(new ErrorResponse(Constants.DATABASE_ERROR, Constants.DB_ACCESS_ERROR));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        log.error("Error inesperado: {}", ex.getMessage(), ex);
+        log.error(Constants.LOG_UNEXPECTED_ERROR, ex.getMessage(), ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("INTERNAL_ERROR", "Ha ocurrido un error inesperado"));
+                .body(new ErrorResponse(Constants.INTERNAL_ERROR, Constants.UNEXPECTED_ERROR));
     }
 }
