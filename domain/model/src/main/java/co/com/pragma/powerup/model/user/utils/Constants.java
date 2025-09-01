@@ -16,6 +16,10 @@ public class Constants {
     public static final String SALARY_RANGE = "Base salary must be between 0 and 15,000,000";
     public static final String SALARY_IS_NUMERIC = "Base salary must be numeric";
     public static final String GIVEN_EMAIL_ALREADY_EXIST = "A user with the given email already exists: ";
+    public static final String API_CREDIYA = "API CrediYa";
+    public static final String VERSION_1 = "1.0";
+    public static final String USER_DESCRIPTION = "CrediYa Authentication and User Management API";
+
     // ---------------------------
     // PATTERNS
     // ---------------------------
@@ -51,8 +55,70 @@ public class Constants {
     public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
     public static final String UNEXPECTED_ERROR = "An unexpected error has occurred";
 
+
     // ---------------------------
     // HTTP
     // ---------------------------
     public static final String PATH_USER = "/api/v1/usuarios";
+    public static final String CONTENT_TYPE = "application/json";
+    public static final String NAME_FUNCTION = "createUser";
+    public static final String CODE_200 = "200";
+    public static final String CODE_400 = "400";
+    public static final String CODE_409 = "409";
+    public static final String CODE_500 = "500";
+    // ---------------------------
+    // ROUTER OPERATION
+    // ---------------------------
+    public static final String SUMMARY_REGISTER_USER = "Register user";
+    public static final String DESCRIPTION_REGISTER_USER = "Allows registering a new user";
+
+    // ---------------------------
+    // SUCCESS RESPONSES
+    // ---------------------------
+    public static final String RESPONSE_USER_REGISTERED = "User registered";
+    public static final String EXAMPLE_USER_REGISTERED_NAME = "Registered user";
+    public static final String EXAMPLE_USER_REGISTERED_VALUE = """
+            {
+              "name": "Ivan",
+              "lastName": "Moreno",
+              "birthDate": "1995-12-22",
+              "address": "Avenida siempre viva",
+              "phoneNumber": "3211451234",
+              "emailAddress": "Ivan@Gm.com",
+              "baseSalary": "40981"
+            }
+            """;
+    // ---------------------------
+    // ERROR RESPONSES
+    // ---------------------------
+    public static final String RESPONSE_BAD_REQUEST = "Invalid data";
+    public static final String RESPONSE_CONFLICT = "Email already exists";
+    public static final String RESPONSE_INTERNAL_ERROR = "Unexpected error";
+
+    // ---------------------------
+    // ERROR EXAMPLES
+    // ---------------------------
+    public static final String EXAMPLE_INVALID_SALARY_NAME = "Invalid salary error";
+    public static final String EXAMPLE_INVALID_SALARY_VALUE = """
+            {
+              "code": "BAD_REQUEST",
+              "message": "Base salary must be between 0 and 15,000,000"
+            }
+            """;
+
+    public static final String EXAMPLE_DUPLICATE_EMAIL_NAME = "Duplicate email error";
+    public static final String EXAMPLE_DUPLICATE_EMAIL_VALUE = """
+            {
+              "code": "CONFLICT",
+              "message": "Email already exists"
+            }
+            """;
+
+    public static final String EXAMPLE_SERVER_ERROR_NAME = "Server error";
+    public static final String EXAMPLE_SERVER_ERROR_VALUE = """
+            {
+              "code": "INTERNAL_SERVER_ERROR",
+              "message": "Unexpected error occurred"
+            }
+            """;
 }

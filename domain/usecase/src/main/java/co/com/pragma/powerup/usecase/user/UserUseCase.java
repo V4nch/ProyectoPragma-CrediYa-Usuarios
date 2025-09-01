@@ -17,17 +17,20 @@ public class UserUseCase {
     private final UserRepository userRepository;
     private final TransactionGateway transactionGateway;
 
-    public Mono<User> saveUser(User user){
-        return transactionGateway.doInTransaction(this.validate(user)
-                .flatMap(u ->userRepository.findByEmail(u.getEmailAddress()))
-                .flatMap(existing ->Mono.error(new EmailUserAlreadyExistsException(user.getEmailAddress())))
-                .switchIfEmpty(userRepository.save(user))
-                .cast(User.class)
+    public Mono<User> saveUser(User user) {
+        log.info(user);
+        return this.validate(user)
+                .flatMap(u -> transactionGateway.doInTransaction( // 🔹 Si pasó, entra a la transacción
+                        userRepository.findByEmail(u.getEmailAddress())
+                                .flatMap(existing -> Mono.error(new EmailUserAlreadyExistsException(u.getEmailAddress())))
+                                .switchIfEmpty(userRepository.save(u))
+                                .cast(User.class)
+                ))
                 .doOnSuccess(savedUser ->
                         log.info(Constants.LOG_USER_CREATE_SUCCESSFUL, savedUser.getEmailAddress()))
                 .doOnError(error ->
-                        log.error(Constants.LOG_USER_CREATE_ERROR, user.getEmailAddress(),
-                                error.getMessage())));
+                        log.error(Constants.LOG_USER_CREATE_ERROR, user != null ? user.getEmailAddress() : "null",
+                                error.getMessage()));
     }
 
     private Mono<User> validate(User user) {
