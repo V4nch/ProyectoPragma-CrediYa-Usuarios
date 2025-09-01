@@ -19,7 +19,7 @@ public class Constants {
     public static final String API_CREDIYA = "API CrediYa";
     public static final String VERSION_1 = "1.0";
     public static final String USER_DESCRIPTION = "CrediYa Authentication and User Management API";
-
+    public static final String NULL = "null";
     // ---------------------------
     // PATTERNS
     // ---------------------------

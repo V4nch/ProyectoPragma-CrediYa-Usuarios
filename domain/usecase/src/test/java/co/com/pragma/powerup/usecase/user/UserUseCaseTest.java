@@ -7,7 +7,6 @@ import co.com.pragma.powerup.model.user.gateways.UserRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -71,10 +70,6 @@ class UserUseCaseTest {
                     System.out.println("Clase real: " + error.getClass().getName());
                 })
                 .verify();
-//        StepVerifier.create(userUseCase.saveUser(user))
-//                .expectError(EmailUserAlreadyExistsException.class)
-//                .verify();
-
     }
 
     @Test
@@ -90,6 +85,17 @@ class UserUseCaseTest {
     void validate_missingName() {
         User user = buildValidUser();
         user.setName("");
+
+        StepVerifier.create(userUseCase.saveUser(user))
+                .expectError(MissingFieldException.class)
+                .verify();
+
+    }
+
+    @Test
+    void validate_missingLastName() {
+        User user = buildValidUser();
+        user.setLastName("");
 
         StepVerifier.create(userUseCase.saveUser(user))
                 .expectError(MissingFieldException.class)
