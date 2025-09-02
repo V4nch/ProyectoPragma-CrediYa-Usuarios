@@ -106,7 +106,7 @@ class UserUseCaseTest {
     @Test
     void validate_invalidEmailFormat() {
         User user = buildValidUser();
-        user.setEmailAddress("invalid-email");
+        user.setEmailAddress("invalid-emailll");
 
         StepVerifier.create(userUseCase.saveUser(user))
                 .expectError(InvalidEmailException.class)
