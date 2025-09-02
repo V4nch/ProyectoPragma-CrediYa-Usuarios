@@ -17,15 +17,16 @@ class UserUseCaseTest {
 
     private UserRepository userRepository;
     private UserUseCase userUseCase;
+    private  TransactionGateway transactionGateway;
     @BeforeEach
     void setUp() {
         userRepository = mock(UserRepository.class);
-        TransactionGateway transactionGateway =  Mockito.mock(TransactionGateway.class);
-        when(transactionGateway.doInTransaction(Mockito.<Mono<?>>any()))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+         transactionGateway =  Mockito.mock(TransactionGateway.class);
 
         when(userRepository.findByEmail(anyString())).thenReturn(Mono.empty());
 
+        when(transactionGateway.doInTransaction(any(Mono.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         userUseCase = new UserUseCase(userRepository, transactionGateway);
     }
 
@@ -45,6 +46,7 @@ class UserUseCaseTest {
         when(userRepository.findByEmail(user.getEmailAddress())).thenReturn(Mono.empty());
         when(userRepository.save(user)).thenReturn(Mono.just(user));
 
+
         StepVerifier.create(userUseCase.saveUser(user))
                 .expectNext(user)
                 .verifyComplete();
@@ -59,16 +61,15 @@ class UserUseCaseTest {
         user.setLastName("Moreno");
         user.setEmailAddress("ivan@example.com");
         user.setBaseSalary("5000000");
-
+        when(userRepository.save(any(User.class))).thenAnswer(inv ->
+                Mono.just(inv.getArgument(0))
+        );
         when(userRepository.findByEmail(user.getEmailAddress())).thenReturn(Mono.just(user));
 
 
 
         StepVerifier.create(userUseCase.saveUser(user))
-                .expectErrorSatisfies(error -> {
-                    System.out.println("Mensaje: " + error.getMessage());
-                    System.out.println("Clase real: " + error.getClass().getName());
-                })
+                .expectError(EmailUserAlreadyExistsException.class)
                 .verify();
     }
 
