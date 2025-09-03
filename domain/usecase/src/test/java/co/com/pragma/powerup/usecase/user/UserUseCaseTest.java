@@ -135,5 +135,20 @@ class UserUseCaseTest {
                 .verify();
 
     }
+    @Test
+    void saveUser_nullUserTriggersDoOnError() {
+        StepVerifier.create(userUseCase.saveUser(null))
+                .expectError(InvalidUserException.class)
+                .verify();
+    }
+    @Test
+    void validate_salaryNegative() {
+        User user = buildValidUser();
+        user.setBaseSalary("-1000");
+
+        StepVerifier.create(userUseCase.saveUser(user))
+                .expectError(InvalidSalaryException.class)
+                .verify();
+    }
 }
 
