@@ -1,0 +1,2 @@
+# Asegurar UTF-8 en todos los archivos de texto
+* text eol=lf working-tree-encoding=UTF-8
