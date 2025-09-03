@@ -17,11 +17,11 @@ class UserUseCaseTest {
 
     private UserRepository userRepository;
     private UserUseCase userUseCase;
-    private  TransactionGateway transactionGateway;
+
     @BeforeEach
     void setUp() {
         userRepository = mock(UserRepository.class);
-         transactionGateway =  Mockito.mock(TransactionGateway.class);
+        TransactionGateway transactionGateway =  Mockito.mock(TransactionGateway.class);
 
         when(userRepository.findByEmail(anyString())).thenReturn(Mono.empty());
 
