@@ -14,6 +14,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+        log.warn(Constants.LOG_USER_NOT_FOUND, ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(Constants.NOT_FOUND, ex.getMessage()));
+    }
+
     @ExceptionHandler(EmailUserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailUserAlreadyExistsException ex) {
         log.warn(Constants.LOG_EMAIL_ALREADY_EXIST, ex.getMessage());

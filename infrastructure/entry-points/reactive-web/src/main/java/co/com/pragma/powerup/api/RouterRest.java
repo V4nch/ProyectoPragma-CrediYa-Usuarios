@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -22,10 +23,16 @@ public class RouterRest {
             consumes = { Constants.CONTENT_TYPE },
             beanClass = UserHandler.class,
             beanMethod = Constants.NAME_FUNCTION
-        )
+        ),
+            @RouterOperation(
+                    path = Constants.PATH_USER + Constants.ID_PARAMS,
+                    produces = { Constants.CONTENT_TYPE },
+                    beanClass = UserHandler.class,
+                    beanMethod = Constants.NAME_FUNCTION_GET
+            )
     })
     public RouterFunction<ServerResponse> routerFunction(UserHandler handler) {
-        return route(POST(Constants.PATH_USER), handler::createUser);
-
+        return route(POST(Constants.PATH_USER), handler::createUser)
+        .andRoute(GET(Constants.PATH_USER + Constants.ID_PARAMS), handler::getUser);
     }
 }

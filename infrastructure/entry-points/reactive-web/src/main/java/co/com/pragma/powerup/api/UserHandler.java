@@ -6,6 +6,8 @@ import co.com.pragma.powerup.model.user.utils.Constants;
 import co.com.pragma.powerup.usecase.user.UserUseCase;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -103,6 +106,72 @@ public class UserHandler {
             .doOnSuccess(user -> log.info(Constants.LOG_USER_CREATED, user.getEmailAddress()))
             .doOnError(error -> log.error(Constants.LOG_USER_CREATION_ERROR, error.getMessage()))
             .flatMap(user -> ServerResponse.ok().bodyValue(user));
+    }
+
+    @Operation(
+            summary = Constants.EXAMPLE_USER_GET_NAME,
+            description = Constants.EXAMPLE_USER_GET_NAME,
+            parameters = {
+                    @Parameter(
+                            name = Constants.ID,
+                            description = Constants.USER_ID_DESCRIPTION,
+                            required = true,
+                            in = ParameterIn.PATH,
+                            example = Constants.ID_EXAMPLE
+                    )
+            },
+        responses = {
+            @ApiResponse(
+                responseCode = Constants.CODE_200,
+                description = Constants.EXAMPLE_USER_GET_NAME,
+                content = @Content(
+                    schema = @Schema(implementation = User.class),
+                    examples = {
+                        @ExampleObject(
+                            name =Constants.EXAMPLE_USER_GET_NAME,
+                            value =Constants.EXAMPLE_USER_REGISTERED_VALUE
+                        )
+                    }
+                )
+            ),
+            @ApiResponse(
+                responseCode = Constants.CODE_404,
+                description =Constants.LOG_USER_NOT_FOUND,
+                content = @Content(
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = {
+                        @ExampleObject(
+                            name =Constants.EXAMPLE_USER_NOT_FOUND_NAME,
+                            value =Constants.EXAMPLE_USER_NOT_FOUND_VALUE
+                        )
+                    }
+                )
+            ),
+            @ApiResponse(
+                responseCode = Constants.CODE_500,
+                description =Constants.RESPONSE_INTERNAL_ERROR,
+                content = @Content(
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    examples = {
+                        @ExampleObject(
+                            name =Constants.EXAMPLE_SERVER_ERROR_NAME,
+                            value =Constants.EXAMPLE_SERVER_ERROR_VALUE
+                        )
+                    }
+                )
+            )
+        }
+    )
+    public Mono<ServerResponse> getUser(ServerRequest request) {
+        String id = request.pathVariable(Constants.ID);
+        log.info(Constants.LOG_USER_GET_RECEIVED);
+        return createUserUseCase.getUser(id)
+                .doOnSuccess(user -> log.info(Constants.LOG_USER_GET, user.getEmailAddress()))
+                .doOnError(error -> log.error(Constants.LOG_USER_GET_ERROR_HANDLER, error.getMessage()))
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
 }
