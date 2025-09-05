@@ -32,6 +32,19 @@ public class UserUseCase {
                     error.getMessage()));
     }
 
+    public Mono<User> getUser(String idCard) {
+        return
+                transactionGateway.doInTransaction(
+                        userRepository.findByIdCard(idCard)
+                                .switchIfEmpty(Mono.error(new UserNotFoundException(Constants.USER_NOT_FOUND)))
+                )
+                .doOnSuccess(getUser ->
+                        log.info(Constants.LOG_USER_GET_SUCCESSFUL, getUser.getIdCard()))
+                .doOnError(error ->
+                        log.error(Constants.LOG_USER_GET_ERROR, idCard
+                                ,error.getMessage()));
+    }
+
     private Mono<User> validate(User user) {
         log.info(Constants.LOG_VALIDATE_USER);
         return Mono.justOrEmpty(user)

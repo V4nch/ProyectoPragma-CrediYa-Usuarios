@@ -17,6 +17,7 @@ public class UserEntity {
 
     @Id
     private Long idUser;   // Primary Key
+    private String idCard;
     private String name;
     private String lastName;
     private LocalDate birthDate;

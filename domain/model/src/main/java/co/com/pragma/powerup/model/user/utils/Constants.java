@@ -20,6 +20,11 @@ public class Constants {
     public static final String VERSION_1 = "1.0";
     public static final String USER_DESCRIPTION = "CrediYa Authentication and User Management API";
     public static final String NULL = "null";
+    public static final String USER_NOT_FOUND = "User not found";
+    public static final String ID = "id";
+    public static final String ID_PARAMS = "/{id}";
+    public static final String USER_ID_DESCRIPTION = "ID del usuario";
+    public static final String ID_EXAMPLE = "1234";
     // ---------------------------
     // PATTERNS
     // ---------------------------
@@ -41,9 +46,12 @@ public class Constants {
     public static final String LOG_RECEIVED_DATA = "Received data: {}";
     public static final String LOG_USER_CREATED = "User created: {}";
     public static final String LOG_USER_CREATION_ERROR = "Error creating user: {}";
-
-
-
+    public static final String LOG_USER_GET_SUCCESSFUL = "User successfully got with id card={}";
+    public static final String LOG_USER_GET_ERROR = "Error getting user with id card={}: {}";
+    public static final String LOG_USER_GET_RECEIVED = "User get request received";
+    public static final String LOG_USER_GET = "User got: {}";
+    public static final String LOG_USER_GET_ERROR_HANDLER = "Error getting user: {}";
+    public static final String LOG_USER_NOT_FOUND = "Error, a user with the given id card don't exists: {}";
     // ---------------------------
     // HTTP ERROR MESSAGES
     // ---------------------------
@@ -54,7 +62,7 @@ public class Constants {
     public static final String DB_ACCESS_ERROR = "Database access error";
     public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
     public static final String UNEXPECTED_ERROR = "An unexpected error has occurred";
-
+    public static final String NOT_FOUND = "USER_NOT_FOUND";
 
     // ---------------------------
     // HTTP
@@ -62,8 +70,10 @@ public class Constants {
     public static final String PATH_USER = "/api/v1/usuarios";
     public static final String CONTENT_TYPE = "application/json";
     public static final String NAME_FUNCTION = "createUser";
+    public static final String NAME_FUNCTION_GET ="getUser";
     public static final String CODE_200 = "200";
     public static final String CODE_400 = "400";
+    public static final String CODE_404 = "404";
     public static final String CODE_409 = "409";
     public static final String CODE_500 = "500";
     // ---------------------------
@@ -76,9 +86,11 @@ public class Constants {
     // SUCCESS RESPONSES
     // ---------------------------
     public static final String RESPONSE_USER_REGISTERED = "User registered";
+    public static final String EXAMPLE_USER_GET_NAME = "Got user";
     public static final String EXAMPLE_USER_REGISTERED_NAME = "Registered user";
     public static final String EXAMPLE_USER_REGISTERED_VALUE = """
             {
+              "idCard": "1094123321",
               "name": "Ivan",
               "lastName": "Moreno",
               "birthDate": "1995-12-22",
@@ -111,6 +123,13 @@ public class Constants {
             {
               "code": "CONFLICT",
               "message": "Email already exists"
+            }
+            """;
+    public static final String EXAMPLE_USER_NOT_FOUND_NAME = "User not found";
+    public static final String EXAMPLE_USER_NOT_FOUND_VALUE = """
+            {
+              "code": "NOT_FOUND",
+              "message": "User not found"
             }
             """;
 
