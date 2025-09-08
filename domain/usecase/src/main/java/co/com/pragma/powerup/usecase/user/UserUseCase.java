@@ -1,13 +1,19 @@
 package co.com.pragma.powerup.usecase.user;
 
+import co.com.pragma.powerup.model.role.gateways.RoleRepository;
 import co.com.pragma.powerup.model.user.User;
 import co.com.pragma.powerup.model.user.exceptions.*;
 import co.com.pragma.powerup.model.user.gateways.TransactionGateway;
 import co.com.pragma.powerup.model.user.gateways.UserRepository;
+import co.com.pragma.powerup.model.user.response.UserResponse;
 import co.com.pragma.powerup.model.user.utils.Constants;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import lombok.extern.log4j.Log4j2;
+
+import java.time.LocalDate;
 
 
 @Log4j2
@@ -16,20 +22,27 @@ public class UserUseCase {
 
     private final UserRepository userRepository;
     private final TransactionGateway transactionGateway;
+    private final RoleRepository roleRepository;
 
-    public Mono<User> saveUser(User user) {
+    public Mono<UserResponse> saveUser(User user, String roleName) {
         return this.validate(user)
-            .flatMap(u -> transactionGateway.doInTransaction(
-                userRepository.findByEmail(u.getEmailAddress())
-                .flatMap(existing -> Mono.error(new EmailUserAlreadyExistsException(u.getEmailAddress())))
-                .switchIfEmpty(userRepository.save(u))
-                .cast(User.class)
-            ))
-            .doOnSuccess(savedUser ->
-                log.info(Constants.LOG_USER_CREATE_SUCCESSFUL, savedUser.getEmailAddress()))
-            .doOnError(error ->
-                log.error(Constants.LOG_USER_CREATE_ERROR, user != null ? user.getEmailAddress() : Constants.NULL,
-                    error.getMessage()));
+                .flatMap(u -> transactionGateway.doInTransaction(
+                        userRepository.findByEmail(u.getEmailAddress())
+                                .flatMap(existing -> Mono.<User>error(
+                                        new EmailUserAlreadyExistsException(u.getEmailAddress())))
+                                .switchIfEmpty(userRepository.findByIdCard(u.getIdCard())
+                                        .flatMap(existing -> Mono.<User>error(
+                                                new IdCardUserAlreadyExistsException(u.getIdCard()))))
+                                .switchIfEmpty(Mono.defer(() -> this.assignRole(u, roleName)))
+                                .flatMap(this::passwordEncode)
+                                .flatMap(this::saveUser)
+                ))
+                .doOnSuccess(savedUser ->
+                        log.info(Constants.LOG_USER_CREATE_SUCCESSFUL, savedUser.getEmailAddress()))
+                .doOnError(error ->
+                        log.error(Constants.LOG_USER_CREATE_ERROR,
+                                user != null ? user.getEmailAddress() : Constants.NULL,
+                                error.getMessage()));
     }
 
     public Mono<User> getUser(String idCard) {
@@ -43,6 +56,29 @@ public class UserUseCase {
                 .doOnError(error ->
                         log.error(Constants.LOG_USER_GET_ERROR, idCard
                                 ,error.getMessage()));
+    }
+    private Mono<UserResponse> saveUser(User user) {
+        return userRepository.save(user)
+                .map(la -> new UserResponse(user.getIdCard(),user.getName(),user.getLastName(),user.getBirthDate(),
+                        user.getAddress(),user.getPhoneNumber(),user.getEmailAddress(),user.getBaseSalary())
+                );
+    }
+
+    private Mono<User> passwordEncode(User user) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String rawPassword = user.getPassword();
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+        user.setPassword(encodedPassword);
+        return Mono.just(user);
+    }
+
+    private Mono<User> assignRole(User user,String roleName) {
+        return roleRepository.findByName(roleName)
+                .switchIfEmpty(Mono.error(new RoleNotFoundException(Constants.ROLE_NOT_FOUND)))
+                .map(role -> {
+                    user.setIdRole(role.getIdRole());
+                    return user;
+                });
     }
 
     private Mono<User> validate(User user) {

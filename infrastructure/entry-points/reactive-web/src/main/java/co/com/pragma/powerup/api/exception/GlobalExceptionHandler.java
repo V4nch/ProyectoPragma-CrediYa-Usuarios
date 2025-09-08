@@ -29,6 +29,13 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(Constants.EMAIL_ALREADY_EXISTS, ex.getMessage()));
     }
+    @ExceptionHandler(IdCardUserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleIdCardAlreadyExists(IdCardUserAlreadyExistsException ex) {
+        log.warn(Constants.LOG_ID_CARD_ALREADY_EXIST, ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(Constants.ID_CARD_ALREADY_EXISTS, ex.getMessage()));
+    }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {

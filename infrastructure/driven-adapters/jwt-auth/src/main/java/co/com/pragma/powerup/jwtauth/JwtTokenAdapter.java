@@ -7,6 +7,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
@@ -15,7 +16,6 @@ import java.util.Date;
 import java.util.Map;
 
 
-@RequiredArgsConstructor
 public class JwtTokenAdapter implements AuthRepository {
     private final SecretKey key;
     private final long defaultTtlSeconds;
@@ -55,6 +55,21 @@ public class JwtTokenAdapter implements AuthRepository {
             var claims = Jwts.parserBuilder().setSigningKey(key).build()
                     .parseClaimsJws(token).getBody();
             return Mono.just(claims.getSubject());
+        } catch (JwtException | IllegalArgumentException ex) {
+            return Mono.empty();
+        }
+    }
+
+    @Override
+    public Mono<Claims> getClaims(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return Mono.just(claims);
         } catch (JwtException | IllegalArgumentException ex) {
             return Mono.empty();
         }

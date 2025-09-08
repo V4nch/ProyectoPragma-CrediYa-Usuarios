@@ -1,4 +1,4 @@
-package co.com.pragma.powerup.model.auth;
+package co.com.pragma.powerup.model.role;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Auth {
-    private String email;
-    private String password;
+public class Role {
+
+    private Long idRole;
+    private String name;
+    private String description;
+
 }

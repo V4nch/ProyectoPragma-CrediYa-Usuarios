@@ -1,21 +1,15 @@
-package co.com.pragma.powerup.model.user;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+package co.com.pragma.powerup.model.user.response;
 
+import lombok.*;
 
 import java.time.LocalDate;
-
-
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class User {
+public class UserResponse {
 
     private String idCard;
     private String name;
@@ -25,8 +19,4 @@ public class User {
     private String phoneNumber;
     private String emailAddress;
     private String baseSalary;
-    private String password;
-    private Long idRole;
 }
-
-

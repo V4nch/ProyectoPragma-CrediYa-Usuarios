@@ -2,6 +2,8 @@ package co.com.pragma.powerup.api;
 
 import co.com.pragma.powerup.api.exception.ErrorResponse;
 import co.com.pragma.powerup.model.user.User;
+import co.com.pragma.powerup.model.user.request.UserRequest;
+import co.com.pragma.powerup.model.user.response.UserResponse;
 import co.com.pragma.powerup.model.user.utils.Constants;
 import co.com.pragma.powerup.usecase.user.UserUseCase;
 
@@ -21,6 +23,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+
 @Component
 @RequiredArgsConstructor
 @Log4j2
@@ -33,11 +37,11 @@ public class UserHandler {
         requestBody = @RequestBody(
             required = true,
             content = @Content(
-                schema = @Schema(implementation = User.class),
+                schema = @Schema(implementation = UserRequest.class),
                 examples = {
                     @ExampleObject(
                         name =Constants.EXAMPLE_USER_REGISTERED_NAME,
-                        value =Constants.EXAMPLE_USER_REGISTERED_VALUE
+                        value =Constants.EXAMPLE_USER_REQUEST_VALUE
                     )
                 }
             )
@@ -47,7 +51,7 @@ public class UserHandler {
                 responseCode = Constants.CODE_200,
                 description = Constants.RESPONSE_USER_REGISTERED,
                 content = @Content(
-                    schema = @Schema(implementation = User.class),
+                    schema = @Schema(implementation = UserResponse.class),
                     examples = {
                         @ExampleObject(
                             name =Constants.EXAMPLE_USER_REGISTERED_NAME,
@@ -99,10 +103,12 @@ public class UserHandler {
     )
     public Mono<ServerResponse> createUser(ServerRequest request) {
         log.info(Constants.LOG_USER_CREATE_RECEIVED);
-
-        return request.bodyToMono(User.class)
-            .doOnNext(user -> log.debug(Constants.LOG_RECEIVED_DATA, user))
-            .flatMap(createUserUseCase::saveUser)
+        return request.bodyToMono(UserRequest.class)
+            .doOnNext(userReq -> log.debug(Constants.LOG_RECEIVED_DATA, userReq))
+            .flatMap(userReq -> createUserUseCase.saveUser(new User(userReq.getIdCard(),userReq.getName()
+                    ,userReq.getLastName(),userReq.getBirthDate(),userReq.getAddress(),userReq.getPhoneNumber(),
+                    userReq.getEmailAddress(),userReq.getBaseSalary(),userReq.getPassword(),null)
+                    ,userReq.getRoleName()))
             .doOnSuccess(user -> log.info(Constants.LOG_USER_CREATED, user.getEmailAddress()))
             .doOnError(error -> log.error(Constants.LOG_USER_CREATION_ERROR, error.getMessage()))
             .flatMap(user -> ServerResponse.ok().bodyValue(user));

@@ -1,10 +1,14 @@
 package co.com.pragma.powerup.r2dbc;
 
+
 import co.com.pragma.powerup.model.user.User;
 import co.com.pragma.powerup.model.user.gateways.UserRepository;
+import co.com.pragma.powerup.model.user.utils.Constants;
 import co.com.pragma.powerup.r2dbc.entity.UserEntity;
 import co.com.pragma.powerup.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 @Repository
@@ -13,9 +17,10 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         UserEntity,
         Long,
         MyReactiveRepository
-> implements UserRepository {
+> implements UserRepository, ReactiveUserDetailsService {
 
     private final MyReactiveRepository myRepository;
+
 
     public MyReactiveRepositoryAdapter(MyReactiveRepository repository,
                                        ObjectMapper mapper) {
@@ -33,5 +38,25 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<User> findByIdCard(String idCard){
         return this.myRepository.findByIdCard(idCard).map(d -> mapper.map(d, User.class));
     }
+
+    @Override
+    public Mono<UserDetails> findByUsername(String email) {
+        System.out.println(Constants.SEARCHING_USER_BY_EMAIL + email);
+
+        return myRepository.findUserWithRoleByEmail(email)
+                .doOnNext(user -> {
+                    System.out.println(Constants.USER_FOUND);
+                    System.out.println(Constants.EMAIL + user.getEmailAddress());
+                    System.out.println(Constants.PASSWORD_IN_DB + user.getPassword());
+                    System.out.println(Constants.ROLE + user.getRoleName());
+                })
+                .map(user -> org.springframework.security.core.userdetails.User
+                        .withUsername(user.getEmailAddress())
+                        .password(user.getPassword())
+                        .authorities(user.getRoleName())
+                        .build()
+                );
+    }
+
 }
 

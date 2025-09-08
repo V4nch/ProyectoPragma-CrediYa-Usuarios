@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
@@ -25,6 +26,10 @@ public class UserEntity {
     private String phoneNumber;
     private String emailAddress;
     private String baseSalary;
+    private String password;
+    @Column("id_role")
+    private Long idRole;
+
 
 
 
