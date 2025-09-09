@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 Constants.WEBJARS
                         ).permitAll()
                         .pathMatchers(HttpMethod.POST, Constants.PATH_USER).hasAnyRole(Constants.ROLE_ADMIN,Constants.ROLE_ADVISOR)
-                        .pathMatchers(HttpMethod.GET, Constants.PATH_USER+Constants.ID_PARAMS).hasRole(Constants.ROLE_ADMIN)
+                        .pathMatchers(HttpMethod.GET, Constants.PATH_USER+Constants.ID_PARAMS).hasRole(Constants.ROLE_CLIENT)
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)

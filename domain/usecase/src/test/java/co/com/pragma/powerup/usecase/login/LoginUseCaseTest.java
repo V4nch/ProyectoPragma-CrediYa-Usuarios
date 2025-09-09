@@ -3,6 +3,8 @@ package co.com.pragma.powerup.usecase.login;
 
 import co.com.pragma.powerup.model.auth.Auth;
 import co.com.pragma.powerup.model.auth.gateways.AuthRepository;
+import co.com.pragma.powerup.model.user.exceptions.InvalidCredentialsException;
+import co.com.pragma.powerup.model.user.gateways.UserRepository;
 import co.com.pragma.powerup.model.user.utils.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -27,16 +28,17 @@ import static org.mockito.Mockito.*;
 class LoginUseCaseTest {
     private ReactiveAuthenticationManager authManager;
     private AuthRepository authRepository;
+    private UserRepository userRepository;
     private LoginUseCase loginUseCase;
 
     @BeforeEach
     void setUp() {
         authManager = mock(ReactiveAuthenticationManager.class);
         authRepository = mock(AuthRepository.class);
-        loginUseCase = new LoginUseCase(authManager, authRepository);
+        userRepository = mock(UserRepository.class);
+        loginUseCase = new LoginUseCase(authManager, authRepository, userRepository);
     }
 
-    //Nuevo
     @Test
     void execute_successfulLogin_shouldReturnAuthResponse() {
         Auth request = new Auth();
@@ -47,16 +49,27 @@ class LoginUseCaseTest {
         when(authentication.getName()).thenReturn("ivan@example.com");
         GrantedAuthority role = mock(GrantedAuthority.class);
         when(role.getAuthority()).thenReturn(Constants.ROLE_1 + "ADMIN");
-
-
-// Usamos thenAnswer para evitar problemas de genéricos
         when(authentication.getAuthorities()).thenAnswer(invocation -> List.of(role));
 
         when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(Mono.just(authentication));
 
+
+        var user = new co.com.pragma.powerup.model.user.User();
+        user.setEmailAddress("ivan@example.com");
+        user.setIdCard("1234567890");
+        when(userRepository.findByEmail("ivan@example.com"))
+                .thenReturn(Mono.just(user));
+
+
         when(authRepository.generateToken(eq("ivan@example.com"), anyMap(), eq(Duration.ofHours(1))))
-                .thenReturn(Mono.just("fake-jwt-token"));
+                .thenAnswer(invocation -> {
+                    Map<String, Object> claims = invocation.getArgument(1);
+                    assert claims.get(Constants.ROLES) instanceof List;
+                    assert ((List<?>) claims.get(Constants.ROLES)).contains("ADMIN");
+                    assert claims.get("idCard").equals("1234567890");
+                    return Mono.just("fake-jwt-token");
+                });
 
         StepVerifier.create(loginUseCase.execute(request))
                 .expectNextMatches(resp -> resp.getToken().equals("fake-jwt-token"))
@@ -65,9 +78,9 @@ class LoginUseCaseTest {
         verify(authManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(authRepository, times(1))
                 .generateToken(eq("ivan@example.com"), anyMap(), eq(Duration.ofHours(1)));
+        verify(userRepository, times(1)).findByEmail("ivan@example.com");
     }
 
-    //Nuevo
     @Test
     void execute_failedLogin_shouldReturnError() {
         Auth request = new Auth();
@@ -75,18 +88,18 @@ class LoginUseCaseTest {
         request.setPassword("wrong-password");
 
         when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(Mono.error(new RuntimeException("Invalid credentials")));
+                .thenReturn(Mono.error(new InvalidCredentialsException(Constants.EXC_INVALID_CREDENTIALS)));
 
         StepVerifier.create(loginUseCase.execute(request))
-                .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
-                        throwable.getMessage().equals("Invalid credentials"))
+                .expectErrorMatches(throwable -> throwable instanceof InvalidCredentialsException &&
+                        throwable.getMessage().equals(Constants.EXC_INVALID_CREDENTIALS))
                 .verify();
 
         verify(authManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
         verify(authRepository, never()).generateToken(anyString(), anyMap(), any());
+        verify(userRepository, never()).findByEmail(anyString());
     }
 
-    //Nuevo
     @Test
     void execute_shouldMapRolesCorrectlyRemovingPrefix() {
         Auth request = new Auth();
@@ -105,12 +118,20 @@ class LoginUseCaseTest {
         when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(Mono.just(authentication));
 
+
+        var user = new co.com.pragma.powerup.model.user.User();
+        user.setEmailAddress("ivan@example.com");
+        user.setIdCard("1234567890");
+        when(userRepository.findByEmail("ivan@example.com"))
+                .thenReturn(Mono.just(user));
+
         when(authRepository.generateToken(eq("ivan@example.com"), anyMap(), eq(Duration.ofHours(1))))
                 .thenAnswer(invocation -> {
-                    Map<String, List<String>> rolesMap = invocation.getArgument(1);
-                    // Verificar que se eliminó el prefijo ROLE_1
-                    assert rolesMap.get(Constants.ROLES).contains("ADMIN");
-                    assert rolesMap.get(Constants.ROLES).contains("USER");
+                    Map<String, Object> claims = invocation.getArgument(1);
+                    List<?> rolesList = (List<?>) claims.get(Constants.ROLES);
+                    assert rolesList.contains("ADMIN");
+                    assert rolesList.contains("USER");
+                    assert claims.get("idCard").equals("1234567890");
                     return Mono.just("fake-jwt-token");
                 });
 

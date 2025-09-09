@@ -3,11 +3,10 @@ package co.com.pragma.powerup.jwtauth;
 
 
 import co.com.pragma.powerup.model.auth.gateways.AuthRepository;
+import co.com.pragma.powerup.model.user.utils.Constants;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
@@ -20,8 +19,8 @@ public class JwtTokenAdapter implements AuthRepository {
     private final SecretKey key;
     private final long defaultTtlSeconds;
 
-    public JwtTokenAdapter(@Value("${security.jwt.secret}") String secret,
-                           @Value("${security.jwt.expiration}") long defaultTtlSeconds) {
+    public JwtTokenAdapter(@Value(Constants.SECURITY_SECRET) String secret,
+                           @Value(Constants.SECURITY_EXPIRATION) long defaultTtlSeconds) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.defaultTtlSeconds = defaultTtlSeconds;
     }

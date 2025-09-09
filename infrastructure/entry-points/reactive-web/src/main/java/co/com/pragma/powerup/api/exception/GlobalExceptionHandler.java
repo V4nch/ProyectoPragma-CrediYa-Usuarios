@@ -45,6 +45,14 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(Constants.BAD_REQUEST, ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
+        log.warn(Constants.LOG_INVALID_CREDENTIALS, ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(Constants.UNAUTHORIZED, ex.getMessage()));
+    }
+
     @ExceptionHandler(R2dbcDataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleR2dbcIntegrity(R2dbcDataIntegrityViolationException ex) {
         log.error(Constants.LOG_DB_INTEGRITY_ERROR, ex.getMessage(), ex);

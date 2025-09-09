@@ -77,10 +77,21 @@ public class Constants {
     public static final String LOG_USER_GET = "User got: {}";
     public static final String LOG_USER_GET_ERROR_HANDLER = "Error getting user: {}";
     public static final String LOG_USER_NOT_FOUND = "Error, a user with the given id card don't exists: {}";
+    public static final String LOG_LOGIN_ATTEMPT = "Attempting login for email: {}";
+    public static final String LOG_AUTHENTICATING = "Authenticating user: {}";
+    public static final String LOG_AUTH_SUCCESS = "User {} authenticated successfully with roles: {}";
+    public static final String LOG_BUILDING_CLAIMS = "Building claims for user with idCard: {}";
+    public static final String LOG_TOKEN_GENERATED = "Token generated successfully for user: {}";
+    public static final String LOG_LOGIN_COMPLETED = "Login completed for {}";
+    public static final String LOG_AUTH_FAILED = "Authentication failed for {}: {}";
+    public static final String EXC_INVALID_CREDENTIALS = "Invalid email or password";
+    public static final String EXC_USER_NOT_FOUND = "User not found with email: ";
+    public static final String LOG_INVALID_CREDENTIALS = "Invalid email or password: {}";
     // ---------------------------
     // HTTP ERROR MESSAGES
     // ---------------------------
     public static final String BAD_REQUEST = "BAD_REQUEST";
+    public static final String UNAUTHORIZED = "UNAUTHORIZED";
     public static final String DATABASE_ERROR = "DATABASE_ERROR";
     public static final String EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS";
     public static final String ID_CARD_ALREADY_EXISTS = "ID_CARD_ALREADY_EXISTS";
@@ -89,11 +100,6 @@ public class Constants {
     public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
     public static final String UNEXPECTED_ERROR = "An unexpected error has occurred";
     public static final String NOT_FOUND = "USER_NOT_FOUND";
-    public static final String SEARCHING_USER_BY_EMAIL = "Searching user by email:";
-    public static final String USER_FOUND = "User found:";
-    public static final String EMAIL = "Email: ";
-    public static final String PASSWORD_IN_DB = "Password (in DB): ";
-    public static final String ROLE = "Role: ";
 
     // ---------------------------
     // HTTP
@@ -103,8 +109,10 @@ public class Constants {
     public static final String CONTENT_TYPE = "application/json";
     public static final String NAME_FUNCTION = "createUser";
     public static final String NAME_FUNCTION_GET ="getUser";
+    public static final String NAME_FUNCTION_LOGIN = "login";
     public static final String CODE_200 = "200";
     public static final String CODE_400 = "400";
+    public static final String CODE_401 = "401";
     public static final String CODE_404 = "404";
     public static final String CODE_409 = "409";
     public static final String CODE_500 = "500";
@@ -113,11 +121,14 @@ public class Constants {
     // ---------------------------
     public static final String SUMMARY_REGISTER_USER = "Register user";
     public static final String DESCRIPTION_REGISTER_USER = "Allows registering a new user";
+    public static final String SUMMARY_LOGIN_USER = "Login user";
+    public static final String DESCRIPTION_LOGIN_USER = "Allows login a user";
 
     // ---------------------------
     // SUCCESS RESPONSES
     // ---------------------------
     public static final String RESPONSE_USER_REGISTERED = "User registered";
+    public static final String RESPONSE_USER_LOGGED = "User logged";
     public static final String EXAMPLE_USER_GET_NAME = "Got user";
     public static final String EXAMPLE_USER_REGISTERED_NAME = "Registered user";
     public static final String EXAMPLE_USER_REGISTERED_VALUE = """
@@ -146,16 +157,36 @@ public class Constants {
               "roleName": "admin"
             }
             """;
+    public static final String EXAMPLE_LOGIN_NAME = "Logged user";
+    public static final String EXAMPLE_LOGIN_VALUE = """
+              {
+                  "email": "Ivanchio@Gm.com",
+                  "password": "temporal123"
+              }
+            """;
+    public static final String EXAMPLE_LOGIN_RESPONSE_NAME = "Token";
+    public static final String EXAMPLE_LOGIN_RESPONSE_VALUE = """
+    {
+        "token": "eyJhbGciOiJIUzI1NiJ9.YXQiOjE3NTc0NDg0NjUsImV4cCI6MTc1NzQ1MjA2NX0.2bNkST0gCdhpcz2-Xt4"
+    }""";
     // ---------------------------
     // ERROR RESPONSES
     // ---------------------------
     public static final String RESPONSE_BAD_REQUEST = "Invalid data";
     public static final String RESPONSE_CONFLICT = "Email already exists";
     public static final String RESPONSE_INTERNAL_ERROR = "Unexpected error";
+    public static final String RESPONSE_INVALID_CREDENTIALS = "Invalid email or password";
 
     // ---------------------------
     // ERROR EXAMPLES
     // ---------------------------
+    public static final String EXAMPLE_INVALID_CREDENTIALS_NAME = "Invalid credentials error";
+    public static final String EXAMPLE_INVALID_CREDENTIALS = """
+            {
+              "code": "UNAUTHORIZED",
+              "message": "Invalid email or password"
+            }
+            """;
     public static final String EXAMPLE_INVALID_SALARY_NAME = "Invalid salary error";
     public static final String EXAMPLE_INVALID_SALARY_VALUE = """
             {

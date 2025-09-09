@@ -3,7 +3,6 @@ package co.com.pragma.powerup.r2dbc;
 
 import co.com.pragma.powerup.model.user.User;
 import co.com.pragma.powerup.model.user.gateways.UserRepository;
-import co.com.pragma.powerup.model.user.utils.Constants;
 import co.com.pragma.powerup.r2dbc.entity.UserEntity;
 import co.com.pragma.powerup.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
@@ -41,15 +40,8 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<UserDetails> findByUsername(String email) {
-        System.out.println(Constants.SEARCHING_USER_BY_EMAIL + email);
 
         return myRepository.findUserWithRoleByEmail(email)
-                .doOnNext(user -> {
-                    System.out.println(Constants.USER_FOUND);
-                    System.out.println(Constants.EMAIL + user.getEmailAddress());
-                    System.out.println(Constants.PASSWORD_IN_DB + user.getPassword());
-                    System.out.println(Constants.ROLE + user.getRoleName());
-                })
                 .map(user -> org.springframework.security.core.userdetails.User
                         .withUsername(user.getEmailAddress())
                         .password(user.getPassword())

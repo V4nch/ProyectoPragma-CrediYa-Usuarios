@@ -10,7 +10,6 @@ import co.com.pragma.powerup.model.user.gateways.UserRepository;
 import co.com.pragma.powerup.model.user.utils.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import reactor.core.publisher.Mono;
@@ -79,10 +78,9 @@ class UserUseCaseTest {
     @Test
     void saveUser_alreadyExists() {
         User user = buildValidUser();
-        user.setIdCard("1094123321"); // agregar esto
-        user.setPassword("1234"); // asegurar que tenga password si se valida
+        user.setIdCard("1094123321");
+        user.setPassword("1234");
 
-        // Creamos un usuario distinto que simule el existente en DB
         User existingUser = new User();
         existingUser.setEmailAddress(user.getEmailAddress());
         existingUser.setIdCard(user.getIdCard());
@@ -175,11 +173,11 @@ class UserUseCaseTest {
     }
     @Test
     void getUser_ShouldReturnUser_WhenUserExists() {
-        // Arrange
+
         when(userRepository.findByIdCard("1094123321"))
                 .thenReturn(Mono.just(mockUser));
 
-        // Act & Assert
+
         StepVerifier.create(userUseCase.getUser("1094123321"))
                 .expectNextMatches(user -> user.getIdCard().equals("1094123321"))
                 .verifyComplete();
@@ -190,11 +188,11 @@ class UserUseCaseTest {
 
     @Test
     void getUser_ShouldReturnError_WhenUserDoesNotExist() {
-        // Arrange
+
         when(userRepository.findByIdCard("0000"))
                 .thenReturn(Mono.empty());
 
-        // Act & Assert
+
         StepVerifier.create(userUseCase.getUser("0000"))
                 .expectErrorMatches(throwable ->
                         throwable instanceof UserNotFoundException &&
@@ -207,11 +205,11 @@ class UserUseCaseTest {
 
     @Test
     void getUser_ShouldPropagateRepositoryError() {
-        // Arrange
+
         when(userRepository.findByIdCard("9999"))
                 .thenReturn(Mono.error(new RuntimeException("DB error")));
 
-        // Act & Assert
+
         StepVerifier.create(userUseCase.getUser("9999"))
                 .expectErrorMatches(error ->
                         error instanceof RuntimeException &&
@@ -235,7 +233,7 @@ class UserUseCaseTest {
                 .verify();
     }
 
-    //Nuevo
+
     @Test
     void saveUser_roleNotFound_shouldThrowRoleNotFoundException() {
         User user = buildValidUser();
@@ -249,12 +247,12 @@ class UserUseCaseTest {
                 .verify();
     }
 
-    //Nuevo
+
     @Test
     void saveUser_shouldEncodePasswordAndAssignRole() {
         User user = buildValidUser();
-        user.setIdCard("1094123321"); // agregar esto
-        user.setPassword("1234"); // asignamos contraseña real para validar encoding
+        user.setIdCard("1094123321");
+        user.setPassword("1234");
 
         Role role = new Role();
         role.setIdRole(5L);
@@ -273,7 +271,7 @@ class UserUseCaseTest {
 
         verify(userRepository).save(any(User.class));
 
-        // Revisar que la contraseña se encripte correctamente
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         assert encoder.matches("1234", user.getPassword());
     }

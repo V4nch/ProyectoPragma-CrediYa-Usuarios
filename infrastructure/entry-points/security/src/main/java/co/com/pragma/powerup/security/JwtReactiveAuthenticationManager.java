@@ -1,6 +1,7 @@
 package co.com.pragma.powerup.security;
 
 import co.com.pragma.powerup.model.auth.gateways.AuthRepository;
+import co.com.pragma.powerup.model.user.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -23,15 +24,15 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
 
         return tokenProvider.validateToken(token)
                 .filter(Boolean::booleanValue)
-                .flatMap(valid -> tokenProvider.getClaims(token)) // 👈 obtener todos los claims
+                .flatMap(valid -> tokenProvider.getClaims(token))
                 .map(claims -> {
                     String subject = claims.getSubject();
 
-                    // Extraer roles del claim "roles"
-                    List<String> roles = claims.get("roles", List.class);
+
+                    List<String> roles = claims.get(Constants.ROLES, List.class);
 
                     Collection<SimpleGrantedAuthority> authorities = roles.stream()
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())) // 🔑 importante
+                            .map(role -> new SimpleGrantedAuthority(Constants.ROLE_1 + role.toUpperCase()))
                             .toList();
 
                     AbstractAuthenticationToken auth = new AbstractAuthenticationToken(authorities) {
