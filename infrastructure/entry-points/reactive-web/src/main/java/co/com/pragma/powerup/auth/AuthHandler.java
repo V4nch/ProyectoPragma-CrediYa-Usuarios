@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -23,7 +25,7 @@ import reactor.core.publisher.Mono;
 public class AuthHandler {
 
     private final LoginUseCase loginUseCase;
-
+    private static final Logger log = LoggerFactory.getLogger(AuthHandler.class);
     @Operation(
             summary = Constants.SUMMARY_LOGIN_USER,
             description =Constants.DESCRIPTION_LOGIN_USER,
@@ -82,10 +84,19 @@ public class AuthHandler {
             }
     )
     public Mono<ServerResponse> login(ServerRequest request) {
+        log.info(Constants.LOG_LOGIN_REQUEST);
+
         return request.bodyToMono(Auth.class)
-                .flatMap(loginUseCase::execute)
-                .flatMap(res -> ServerResponse.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(res));
+                .flatMap(auth -> {
+                    log.info(Constants.LOG_LOGIN_PROCESSING, auth.getEmail());
+                    return loginUseCase.execute(auth);
+                })
+                .flatMap(res -> {
+                    log.info(Constants.LOG_LOGIN_SUCCESS);
+                    return ServerResponse.ok()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(res);
+                })
+                .doOnError(error -> log.error(Constants.LOG_LOGIN_ERROR, error.getMessage(), error));
     }
 }

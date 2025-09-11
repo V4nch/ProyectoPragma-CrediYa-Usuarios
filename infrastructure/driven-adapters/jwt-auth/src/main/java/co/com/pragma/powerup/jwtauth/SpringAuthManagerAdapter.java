@@ -3,6 +3,7 @@ package co.com.pragma.powerup.jwtauth;
 import co.com.pragma.powerup.model.auth.AuthUser;
 import co.com.pragma.powerup.model.auth.gateways.AuthManager;
 import co.com.pragma.powerup.model.user.exceptions.InvalidCredentialsException;
+import co.com.pragma.powerup.model.user.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,6 @@ public class SpringAuthManagerAdapter implements AuthManager {
                                 .map(GrantedAuthority::getAuthority)
                                 .toList()
                 ))
-                .onErrorMap(ex -> new InvalidCredentialsException("Invalid credentials"));
+                .onErrorMap(ex -> new InvalidCredentialsException(Constants.EXC_INVALID_CREDENTIALS));
     }
 }
