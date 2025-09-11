@@ -2,6 +2,7 @@ package co.com.pragma.powerup.jwtauth;
 
 
 
+import co.com.pragma.powerup.model.auth.TokenClaims;
 import co.com.pragma.powerup.model.auth.gateways.AuthRepository;
 import co.com.pragma.powerup.model.user.utils.Constants;
 import io.jsonwebtoken.*;
@@ -13,6 +14,7 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class JwtTokenAdapter implements AuthRepository {
@@ -48,19 +50,9 @@ public class JwtTokenAdapter implements AuthRepository {
         }
     }
 
-    @Override
-    public Mono<String> getSubject(String token) {
-        try {
-            var claims = Jwts.parserBuilder().setSigningKey(key).build()
-                    .parseClaimsJws(token).getBody();
-            return Mono.just(claims.getSubject());
-        } catch (JwtException | IllegalArgumentException ex) {
-            return Mono.empty();
-        }
-    }
 
     @Override
-    public Mono<Claims> getClaims(String token) {
+    public Mono<TokenClaims> getClaims(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -68,7 +60,14 @@ public class JwtTokenAdapter implements AuthRepository {
                     .parseClaimsJws(token)
                     .getBody();
 
-            return Mono.just(claims);
+            return Mono.just(new TokenClaims(
+                    claims.getSubject(),
+                    claims
+                            .entrySet()
+                            .stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+            ));
+
         } catch (JwtException | IllegalArgumentException ex) {
             return Mono.empty();
         }

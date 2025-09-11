@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -25,11 +26,13 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
         return tokenProvider.validateToken(token)
                 .filter(Boolean::booleanValue)
                 .flatMap(valid -> tokenProvider.getClaims(token))
-                .map(claims -> {
-                    String subject = claims.getSubject();
+                .map(tokenClaims -> {
+                    String subject = tokenClaims.subject();
 
+                    Map<String, Object> claims = tokenClaims.claims();
 
-                    List<String> roles = claims.get(Constants.ROLES, List.class);
+                    @SuppressWarnings("unchecked")
+                    List<String> roles = (List<String>) claims.get(Constants.ROLES);
 
                     Collection<SimpleGrantedAuthority> authorities = roles.stream()
                             .map(role -> new SimpleGrantedAuthority(Constants.ROLE_1 + role.toUpperCase()))
