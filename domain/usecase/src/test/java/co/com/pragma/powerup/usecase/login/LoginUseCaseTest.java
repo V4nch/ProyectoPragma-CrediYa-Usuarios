@@ -4,6 +4,7 @@ package co.com.pragma.powerup.usecase.login;
 import co.com.pragma.powerup.model.auth.Auth;
 import co.com.pragma.powerup.model.auth.AuthResponse;
 import co.com.pragma.powerup.model.auth.AuthUser;
+import co.com.pragma.powerup.model.auth.TokenClaims;
 import co.com.pragma.powerup.model.auth.gateways.AuthManager;
 import co.com.pragma.powerup.model.auth.gateways.AuthRepository;
 import co.com.pragma.powerup.model.user.User;
@@ -20,6 +21,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -121,5 +123,25 @@ class LoginUseCaseTest {
         verify(authManager).authenticate("wrong@mail.com", "badpass");
         verifyNoInteractions(userRepository);
         verifyNoInteractions(authRepository);
+    }
+    @Test
+    void shouldGetClaimsSuccessfully() {
+
+        String fakeToken = "jwt.token";
+        Map<String, Object> claimsMap = Map.of("role", "ADMIN");
+        TokenClaims tokenClaims = new TokenClaims("test@mail.com", claimsMap);
+
+        when(authRepository.getClaims(fakeToken))
+                .thenReturn(Mono.just(tokenClaims));
+
+
+        StepVerifier.create(authRepository.getClaims(fakeToken))
+                .assertNext(claims -> {
+                    assertEquals("test@mail.com", claims.subject());
+                    assertEquals("ADMIN", claims.claims().get("role"));
+                })
+                .verifyComplete();
+
+        verify(authRepository).getClaims(fakeToken);
     }
 }
