@@ -32,7 +32,6 @@ public class LoginUseCase {
                                             Constants.ROLES, authUser.getRoles(),
                                             "idCard", user.getIdCard()
                                     );
-
                                     return authRepository.generateToken(
                                             authUser.getEmail(),
                                             claims,
