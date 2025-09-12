@@ -11,7 +11,6 @@ import co.com.pragma.powerup.model.user.utils.Constants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -270,10 +269,6 @@ class UserUseCaseTest {
                 .verifyComplete();
 
         verify(userRepository).save(any(User.class));
-
-
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        assert encoder.matches("1234", user.getPassword());
     }
 }
 

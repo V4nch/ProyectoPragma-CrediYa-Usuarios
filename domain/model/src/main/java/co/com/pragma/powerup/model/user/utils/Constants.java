@@ -58,9 +58,6 @@ public class Constants {
     // ---------------------------
     // LOGGING MESSAGES
     // ---------------------------
-    public static final String LOG_VALIDATE_USER  = "Starting validation for user attributes";
-    public static final String LOG_USER_CREATE_SUCCESSFUL = "User successfully created with email={}";
-    public static final String LOG_USER_CREATE_ERROR = "Error creating user with email={}: {}";
     public static final String LOG_USER_CREATE_RECEIVED = "User creation request received";
     public static final String LOG_BUSINESS_ERROR = "BUSINESS ERROR: {}";
     public static final String LOG_EMAIL_ALREADY_EXIST = "Error, a user with the given email already exists: {}";
@@ -71,22 +68,16 @@ public class Constants {
     public static final String LOG_RECEIVED_DATA = "Received data: {}";
     public static final String LOG_USER_CREATED = "User created: {}";
     public static final String LOG_USER_CREATION_ERROR = "Error creating user: {}";
-    public static final String LOG_USER_GET_SUCCESSFUL = "User successfully got with id card={}";
-    public static final String LOG_USER_GET_ERROR = "Error getting user with id card={}: {}";
     public static final String LOG_USER_GET_RECEIVED = "User get request received";
     public static final String LOG_USER_GET = "User got: {}";
     public static final String LOG_USER_GET_ERROR_HANDLER = "Error getting user: {}";
     public static final String LOG_USER_NOT_FOUND = "Error, a user with the given id card don't exists: {}";
-    public static final String LOG_LOGIN_ATTEMPT = "Attempting login for email: {}";
-    public static final String LOG_AUTHENTICATING = "Authenticating user: {}";
-    public static final String LOG_AUTH_SUCCESS = "User {} authenticated successfully with roles: {}";
-    public static final String LOG_BUILDING_CLAIMS = "Building claims for user with idCard: {}";
-    public static final String LOG_TOKEN_GENERATED = "Token generated successfully for user: {}";
-    public static final String LOG_LOGIN_COMPLETED = "Login completed for {}";
-    public static final String LOG_AUTH_FAILED = "Authentication failed for {}: {}";
     public static final String EXC_INVALID_CREDENTIALS = "Invalid email or password";
-    public static final String EXC_USER_NOT_FOUND = "User not found with email: ";
     public static final String LOG_INVALID_CREDENTIALS = "Invalid email or password: {}";
+    public static final String LOG_LOGIN_REQUEST = "Login request received";
+    public static final String LOG_LOGIN_SUCCESS = "Login successful for user";
+    public static final String LOG_LOGIN_ERROR   = "Login failed: {}";
+    public static final String LOG_LOGIN_PROCESSING = "Processing login for user: {}";
     // ---------------------------
     // HTTP ERROR MESSAGES
     // ---------------------------

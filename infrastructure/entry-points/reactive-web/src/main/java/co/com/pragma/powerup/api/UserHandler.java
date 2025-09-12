@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -29,6 +30,7 @@ import reactor.core.publisher.Mono;
 @Log4j2
 public class UserHandler {
     private final UserUseCase createUserUseCase;
+    private final PasswordEncoder passwordEncoder;
 
     @Operation(
         summary =Constants.SUMMARY_REGISTER_USER,
@@ -106,7 +108,7 @@ public class UserHandler {
             .doOnNext(userReq -> log.debug(Constants.LOG_RECEIVED_DATA, userReq))
             .flatMap(userReq -> createUserUseCase.saveUser(new User(userReq.getIdCard(),userReq.getName()
                     ,userReq.getLastName(),userReq.getBirthDate(),userReq.getAddress(),userReq.getPhoneNumber(),
-                    userReq.getEmailAddress(),userReq.getBaseSalary(),userReq.getPassword(),null)
+                    userReq.getEmailAddress(),userReq.getBaseSalary(),passwordEncoder.encode(userReq.getPassword()),null)
                     ,userReq.getRoleName()))
             .doOnSuccess(user -> log.info(Constants.LOG_USER_CREATED, user.getEmailAddress()))
             .doOnError(error -> log.error(Constants.LOG_USER_CREATION_ERROR, error.getMessage()))

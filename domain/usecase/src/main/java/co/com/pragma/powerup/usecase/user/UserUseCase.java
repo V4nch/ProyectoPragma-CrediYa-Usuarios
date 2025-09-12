@@ -8,14 +8,8 @@ import co.com.pragma.powerup.model.user.gateways.UserRepository;
 import co.com.pragma.powerup.model.user.response.UserResponse;
 import co.com.pragma.powerup.model.user.utils.Constants;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
-import lombok.extern.log4j.Log4j2;
 
-
-
-@Log4j2
 @RequiredArgsConstructor
 public class UserUseCase {
 
@@ -33,15 +27,8 @@ public class UserUseCase {
                                         .flatMap(existing -> Mono.<User>error(
                                                 new IdCardUserAlreadyExistsException(u.getIdCard()))))
                                 .switchIfEmpty(Mono.defer(() -> this.assignRole(u, roleName)))
-                                .flatMap(this::passwordEncode)
                                 .flatMap(this::saveUser)
-                ))
-                .doOnSuccess(savedUser ->
-                        log.info(Constants.LOG_USER_CREATE_SUCCESSFUL, savedUser.getEmailAddress()))
-                .doOnError(error ->
-                        log.error(Constants.LOG_USER_CREATE_ERROR,
-                                user != null ? user.getEmailAddress() : Constants.NULL,
-                                error.getMessage()));
+                ));
     }
 
     public Mono<User> getUser(String idCard) {
@@ -49,12 +36,7 @@ public class UserUseCase {
                 transactionGateway.doInTransaction(
                         userRepository.findByIdCard(idCard)
                                 .switchIfEmpty(Mono.error(new UserNotFoundException(Constants.USER_NOT_FOUND)))
-                )
-                .doOnSuccess(getUser ->
-                        log.info(Constants.LOG_USER_GET_SUCCESSFUL, getUser.getIdCard()))
-                .doOnError(error ->
-                        log.error(Constants.LOG_USER_GET_ERROR, idCard
-                                ,error.getMessage()));
+                );
     }
     private Mono<UserResponse> saveUser(User user) {
         return userRepository.save(user)
@@ -63,13 +45,6 @@ public class UserUseCase {
                 );
     }
 
-    private Mono<User> passwordEncode(User user) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String rawPassword = user.getPassword();
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-        user.setPassword(encodedPassword);
-        return Mono.just(user);
-    }
 
     private Mono<User> assignRole(User user,String roleName) {
         return roleRepository.findByName(roleName)
@@ -81,7 +56,6 @@ public class UserUseCase {
     }
 
     private Mono<User> validate(User user) {
-        log.info(Constants.LOG_VALIDATE_USER);
         return Mono.justOrEmpty(user)
                 .switchIfEmpty(Mono.error(new InvalidUserException(Constants.USER_NULL)))
                 .flatMap(u -> this.requireNonNullOrBlank(u.getName(),Constants.NAME_REQUIRED, u))
